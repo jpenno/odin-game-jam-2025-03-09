@@ -1,13 +1,12 @@
 package game
 
 import "core:c"
-import "core:fmt"
-import "core:log"
 import rl "vendor:raylib"
 
 Game :: struct {
 	run:    bool,
 	player: Player,
+	enemy:  Enemy,
 }
 
 @(private = "file")
@@ -20,6 +19,7 @@ init :: proc() {
 	game = Game {
 		run    = true,
 		player = player_init(rl.Vector2{100, 100}),
+		enemy  = enemy_init(rl.Vector2{300, 300}),
 	}
 
 	init_textures()
@@ -29,18 +29,30 @@ run :: proc() {
 	dt := rl.GetFrameTime()
 	update(dt)
 	draw()
+
 	// Anything allocated using temp allocator is invalid after this.
 	free_all(context.temp_allocator)
 }
 
 update :: proc(dt: f32) {
 	player_update(&game.player, dt)
+	enemy_update(&game.enemy, dt)
+
+	for &b in game.player.bullets {
+		if !game.enemy.dead {
+			if rl.CheckCollisionCircles(b.pos, b.size, game.enemy.pos, game.enemy.size) {
+				game.enemy.dead = true
+				b.active = false
+			}
+		}
+	}
 }
 
 draw :: proc() {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.GRAY)
 
+	enemy_draw(game.enemy)
 	player_draw(game.player)
 
 	rl.EndDrawing()

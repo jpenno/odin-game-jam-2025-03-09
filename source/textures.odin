@@ -9,6 +9,7 @@ Texture_Name :: enum {
 	None,
 	Player,
 	Bullet,
+	Enemy,
 }
 
 Texture :: struct {
@@ -19,6 +20,7 @@ Texture :: struct {
 init_textures :: proc() {
 	textures[.Player] = init_texture("assets/spaceship.png")
 	textures[.Bullet] = init_texture("assets/bullet.png")
+	textures[.Enemy] = init_texture("assets/enemy.png")
 }
 
 texture_draw :: proc(texture: Texture_Name, pos: rl.Vector2, rotation: f32 = 0) {
