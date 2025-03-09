@@ -6,7 +6,6 @@ import rl "vendor:raylib"
 Game :: struct {
 	run:    bool,
 	player: Player,
-	enemy:  Enemy,
 }
 
 @(private = "file")
@@ -19,8 +18,9 @@ init :: proc() {
 	game = Game {
 		run    = true,
 		player = player_init(rl.Vector2{100, 100}),
-		enemy  = enemy_init(rl.Vector2{300, 300}),
 	}
+
+	enemy_manager_init()
 
 	init_textures()
 }
@@ -36,23 +36,25 @@ run :: proc() {
 
 update :: proc(dt: f32) {
 	player_update(&game.player, dt)
-	enemy_update(&game.enemy, game.player, dt)
+	enemy_manager_update(&game.player, dt)
 
-	for &b in game.player.bullets {
-		if !game.enemy.dead {
-			if rl.CheckCollisionCircles(b.pos, b.size, game.enemy.pos, game.enemy.size) {
-				game.enemy.dead = true
-				b.active = false
-			}
-		}
-	}
+	// enemy_update(&game.enemy, game.player, dt)
+	//
+	// for &b in game.player.bullets {
+	// 	if !game.enemy.dead {
+	// 		if rl.CheckCollisionCircles(b.pos, b.size / 2, game.enemy.pos, game.enemy.size / 2) {
+	// 			game.enemy.dead = true
+	// 			b.active = false
+	// 		}
+	// 	}
+	// }
 }
 
 draw :: proc() {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.GRAY)
 
-	enemy_draw(game.enemy)
+	enemy_manager_draw()
 	player_draw(game.player)
 
 	rl.EndDrawing()

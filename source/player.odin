@@ -1,5 +1,6 @@
 package game
 
+import "core:fmt"
 import "core:math"
 import "core:math/linalg"
 import rl "vendor:raylib"
@@ -47,6 +48,10 @@ player_draw :: proc(p: Player) {
 	rotation := -radians * 180 / math.PI
 
 	texture_draw(.Player, p.pos, rotation)
+}
+
+player_take_damage :: proc(damage: i32) {
+	fmt.printfln("player take damage: %d", damage)
 }
 
 @(private = "file")
