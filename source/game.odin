@@ -6,34 +6,44 @@ import "core:log"
 import rl "vendor:raylib"
 
 Game :: struct {
-	run:        bool,
-	player_pos: rl.Vector2,
+	run:    bool,
+	player: Player,
 }
 
+@(private = "file")
 game: Game
 
 init :: proc() {
-	game = Game {
-		run        = true,
-		player_pos = rl.Vector2{100, 100},
-	}
-
 	rl.SetConfigFlags({.WINDOW_RESIZABLE, .VSYNC_HINT})
 	rl.InitWindow(1280, 720, "Odin + Raylib on the web")
+
+	game = Game {
+		run    = true,
+		player = player_init(rl.Vector2{100, 100}),
+	}
 
 	init_textures()
 }
 
-update :: proc() {
+run :: proc() {
+	dt := rl.GetFrameTime()
+	update(dt)
+	draw()
+	// Anything allocated using temp allocator is invalid after this.
+	free_all(context.temp_allocator)
+}
+
+update :: proc(dt: f32) {
+	player_update(&game.player, dt)
+}
+
+draw :: proc() {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.GRAY)
 
-	texture_draw(.Player, game.player_pos)
+	player_draw(game.player)
 
 	rl.EndDrawing()
-
-	// Anything allocated using temp allocator is invalid after this.
-	free_all(context.temp_allocator)
 }
 
 // In a web build, this is called when browser changes size. Remove the
