@@ -4,10 +4,11 @@ import "core:fmt"
 import rl "vendor:raylib"
 
 Map :: struct {
-	width:      int,
-	height:     int,
-	nodes:      [dynamic]Node,
-	playre_pos: rl.Vector2,
+	width:         int,
+	height:        int,
+	nodes:         [dynamic]Node,
+	playre_pos:    rl.Vector2,
+	selected_node: ^Node,
 }
 
 map_init :: proc() -> (m: Map) {
@@ -94,10 +95,29 @@ map_delete :: proc(m: ^Map) {
 }
 
 map_update :: proc(m: ^Map, dt: f32) {
-	for &node in m.nodes {
-		if node_mouse_hover(&node) == true {
-			break
+	if m.selected_node == nil {
+		for &node in m.nodes {
+			switch node_mouse_hover(&node) {
+			case Node_state.Mouse_over:
+				break
+			case Node_state.Selected:
+				m.selected_node = &node
+				break
+			case Node_state.Active_link:
+			case Node_state.None:
+			}
 		}
+	}
+
+	for &node in m.nodes {
+		node_update(&node)
+	}
+
+	if rl.IsKeyPressed(rl.KeyboardKey.K) {
+		for &node in m.nodes {
+			node_reset_state(&node)
+		}
+		m.selected_node = nil
 	}
 }
 
