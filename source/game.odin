@@ -37,17 +37,6 @@ run :: proc() {
 update :: proc(dt: f32) {
 	player_update(&game.player, dt)
 	enemy_manager_update(&game.player, dt)
-
-	// enemy_update(&game.enemy, game.player, dt)
-	//
-	// for &b in game.player.bullets {
-	// 	if !game.enemy.dead {
-	// 		if rl.CheckCollisionCircles(b.pos, b.size / 2, game.enemy.pos, game.enemy.size / 2) {
-	// 			game.enemy.dead = true
-	// 			b.active = false
-	// 		}
-	// 	}
-	// }
 }
 
 draw :: proc() {

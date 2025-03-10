@@ -29,7 +29,7 @@ enemy_manager_update :: proc(player: ^Player, dt: f32) {
 
 	for &b in player.bullets {
 		for &e in enemy_manager.enemys {
-			if e.dead {
+			if e.dead || !b.active {
 				continue
 			}
 
