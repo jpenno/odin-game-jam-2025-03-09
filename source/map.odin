@@ -4,12 +4,15 @@ import "core:fmt"
 import rl "vendor:raylib"
 
 Map :: struct {
-	width:  int,
-	height: int,
-	nodes:  [dynamic]Node,
+	width:      int,
+	height:     int,
+	nodes:      [dynamic]Node,
+	playre_pos: rl.Vector2,
 }
 
 map_init :: proc() -> (m: Map) {
+	m.playre_pos = rl.Vector2{-1, -1}
+
 	m.width = 4
 	m.height = 3
 
@@ -38,11 +41,50 @@ map_init :: proc() -> (m: Map) {
 		}
 	}
 
-	m.nodes[0].links = [3]^Node {
+	// NOTE: set links for nodes
+	// row 1
+	m.nodes[get_index(0, 0, m.width)].links = [3]^Node {
 		&m.nodes[get_index(0, 1, m.width)],
 		&m.nodes[get_index(1, 1, m.width)],
 		nil,
 	}
+	m.nodes[get_index(1, 0, m.width)].links = [3]^Node {
+		&m.nodes[get_index(0, 1, m.width)],
+		&m.nodes[get_index(1, 1, m.width)],
+		nil,
+	}
+	m.nodes[get_index(2, 0, m.width)].links = [3]^Node {
+		&m.nodes[get_index(1, 1, m.width)],
+		&m.nodes[get_index(3, 1, m.width)],
+		nil,
+	}
+	m.nodes[get_index(3, 0, m.width)].links = [3]^Node {
+		&m.nodes[get_index(2, 1, m.width)],
+		&m.nodes[get_index(3, 1, m.width)],
+		nil,
+	}
+	// row 2
+	m.nodes[get_index(0, 1, m.width)].links = [3]^Node {
+		&m.nodes[get_index(0, 2, m.width)],
+		nil,
+		nil,
+	}
+	m.nodes[get_index(1, 1, m.width)].links = [3]^Node {
+		&m.nodes[get_index(0, 2, m.width)],
+		&m.nodes[get_index(2, 2, m.width)],
+		nil,
+	}
+	m.nodes[get_index(2, 1, m.width)].links = [3]^Node {
+		&m.nodes[get_index(1, 2, m.width)],
+		&m.nodes[get_index(3, 2, m.width)],
+		nil,
+	}
+	m.nodes[get_index(3, 1, m.width)].links = [3]^Node {
+		&m.nodes[get_index(2, 2, m.width)],
+		&m.nodes[get_index(3, 2, m.width)],
+		nil,
+	}
+	// end of setting links
 
 	return m
 }
@@ -51,8 +93,12 @@ map_delete :: proc(m: ^Map) {
 	delete(m.nodes)
 }
 
-map_update :: proc(dt: f32) {
-
+map_update :: proc(m: ^Map, dt: f32) {
+	for &node in m.nodes {
+		if node_mouse_hover(&node) == true {
+			break
+		}
+	}
 }
 
 map_draw :: proc(m: Map) {

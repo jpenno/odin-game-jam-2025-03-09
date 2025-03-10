@@ -47,7 +47,7 @@ run :: proc() {
 update :: proc(dt: f32) {
 	switch game.state {
 	case .Map:
-		map_update(dt)
+		map_update(&game.mmap, dt)
 	case .Playing:
 		game_update(dt)
 	}
