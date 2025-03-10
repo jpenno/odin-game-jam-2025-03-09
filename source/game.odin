@@ -3,9 +3,16 @@ package game
 import "core:c"
 import rl "vendor:raylib"
 
+Game_state :: enum {
+	Map,
+	Playing,
+}
+
 Game :: struct {
 	run:    bool,
 	player: Player,
+	state:  Game_state,
+	mmap:   Map,
 }
 
 @(private = "file")
@@ -18,6 +25,8 @@ init :: proc() {
 	game = Game {
 		run    = true,
 		player = player_init(rl.Vector2{100, 100}),
+		state  = .Map,
+		mmap   = map_init(),
 	}
 
 	enemy_manager_init()
@@ -27,6 +36,7 @@ init :: proc() {
 
 run :: proc() {
 	dt := rl.GetFrameTime()
+
 	update(dt)
 	draw()
 
@@ -35,18 +45,38 @@ run :: proc() {
 }
 
 update :: proc(dt: f32) {
+	switch game.state {
+	case .Map:
+		map_update(dt)
+	case .Playing:
+		game_update(dt)
+	}
+}
+
+game_update :: proc(dt: f32) {
 	player_update(&game.player, dt)
 	enemy_manager_update(&game.player, dt)
 }
 
+
 draw :: proc() {
 	rl.BeginDrawing()
-	rl.ClearBackground(rl.GRAY)
+
+	switch game.state {
+	case .Map:
+		map_draw(game.mmap)
+	case .Playing:
+		game_draw()
+	}
+
+	rl.EndDrawing()
+}
+
+game_draw :: proc() {
+	rl.ClearBackground(rl.Color{40, 40, 46, 255})
 
 	enemy_manager_draw()
 	player_draw(game.player)
-
-	rl.EndDrawing()
 }
 
 // In a web build, this is called when browser changes size. Remove the
@@ -56,6 +86,7 @@ parent_window_size_changed :: proc(w, h: int) {
 }
 
 shutdown :: proc() {
+	map_delete(&game.mmap)
 	rl.CloseWindow()
 }
 
