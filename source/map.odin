@@ -114,10 +114,7 @@ map_update :: proc(m: ^Map, dt: f32) {
 	}
 
 	if rl.IsKeyPressed(rl.KeyboardKey.K) {
-		for &node in m.nodes {
-			node_reset_state(&node)
-		}
-		m.selected_node = nil
+		reset_nodes(m)
 	}
 }
 
@@ -127,6 +124,15 @@ map_draw :: proc(m: Map) {
 	for n in m.nodes {
 		node_draw(n)
 	}
+}
+
+@(private = "file")
+reset_nodes :: proc(m: ^Map) {
+	for &node in m.nodes {
+		node_reset_state(&node)
+	}
+
+	m.selected_node = nil
 }
 
 @(private = "file")

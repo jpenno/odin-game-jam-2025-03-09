@@ -56,12 +56,21 @@ node_reset_state :: proc(n: ^Node) {
 }
 
 node_draw :: proc(n: Node) {
+	line_color: rl.Color
+
+	switch n.state {
+	case .Mouse_over:
+		line_color = rl.Color{255, 247, 228, 255}
+	case .Active_link, .Selected, .None:
+		line_color = rl.Color{108, 86, 113, 255}
+	}
+
 	for link in n.links {
 		if link == nil {
 			continue
 		}
 
-		rl.DrawLineEx(n.screen_pos, link.screen_pos, 10, rl.Color{255, 247, 228, 255})
+		rl.DrawLineEx(n.screen_pos, link.screen_pos, 10, line_color)
 	}
 
 	texture_draw(.Base_Node, n.screen_pos)
