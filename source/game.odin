@@ -29,7 +29,7 @@ init :: proc() {
 		mmap   = map_init(),
 	}
 
-	enemy_manager_init()
+	enemy_manager_init(0.1, 20)
 
 	init_textures()
 }
@@ -47,7 +47,11 @@ run :: proc() {
 update :: proc(dt: f32) {
 	switch game.state {
 	case .Map:
-		map_update(&game.mmap, dt)
+		node := map_update(&game.mmap, dt)
+		if node != nil {
+			game.state = .Playing
+			enemy_manager_init(node.enemy_spawn_time, node.enemy_count)
+		}
 	case .Playing:
 		game_update(dt)
 	}
@@ -55,9 +59,11 @@ update :: proc(dt: f32) {
 
 game_update :: proc(dt: f32) {
 	player_update(&game.player, dt)
-	enemy_manager_update(&game.player, dt)
-}
 
+	if enemy_manager_update(&game.player, dt) {
+		game.state = .Map
+	}
+}
 
 draw :: proc() {
 	rl.BeginDrawing()

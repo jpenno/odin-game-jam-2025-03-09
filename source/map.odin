@@ -7,12 +7,19 @@ Map :: struct {
 	width:         int,
 	height:        int,
 	nodes:         [dynamic]Node,
-	playre_pos:    rl.Vector2,
+	playre_pos:    [2]int,
 	selected_node: ^Node,
+	start_button:  rl.Rectangle,
 }
 
 map_init :: proc() -> (m: Map) {
-	m.playre_pos = rl.Vector2{-1, -1}
+	m.start_button = rl.Rectangle {
+		f32(rl.GetScreenWidth() - 200),
+		f32(rl.GetScreenHeight() - 100),
+		100,
+		50,
+	}
+	m.playre_pos = [2]int{-1, -1}
 
 	m.width = 4
 	m.height = 3
@@ -32,7 +39,7 @@ map_init :: proc() -> (m: Map) {
 	for &node in m.nodes {
 		node = node_init(
 			rl.Vector2{start_x + spacing_x * f32(x), start_y - spacing_y * f32(y)},
-			[2]int{y, x},
+			[2]int{x, y},
 		)
 
 		x += 1
@@ -94,14 +101,17 @@ map_delete :: proc(m: ^Map) {
 	delete(m.nodes)
 }
 
-map_update :: proc(m: ^Map, dt: f32) {
+map_update :: proc(m: ^Map, dt: f32) -> ^Node {
 	if m.selected_node == nil {
 		for &node in m.nodes {
 			switch node_mouse_hover(&node) {
 			case Node_state.Mouse_over:
 				break
 			case Node_state.Selected:
-				m.selected_node = &node
+				if m.playre_pos.y == -1 && node.map_pos.y == 0 {
+					m.selected_node = &node
+					m.playre_pos = node.map_pos
+				}
 				break
 			case Node_state.Active_link:
 			case Node_state.None:
@@ -116,6 +126,22 @@ map_update :: proc(m: ^Map, dt: f32) {
 	if rl.IsKeyPressed(rl.KeyboardKey.K) {
 		reset_nodes(m)
 	}
+
+	if m.selected_node == nil {
+		return nil
+	}
+
+	if rl.CheckCollisionRecs(
+		m.start_button,
+		rl.Rectangle{f32(rl.GetMouseX()), f32(rl.GetMouseY()), 10, 10},
+	) {
+		if rl.IsMouseButtonPressed(rl.MouseButton.LEFT) {
+			fmt.printfln("start game: %v", m.selected_node)
+			return m.selected_node
+		}
+	}
+
+	return nil
 }
 
 map_draw :: proc(m: Map) {
@@ -124,6 +150,8 @@ map_draw :: proc(m: Map) {
 	for n in m.nodes {
 		node_draw(n)
 	}
+
+	rl.DrawRectangleRec(m.start_button, rl.GREEN)
 }
 
 @(private = "file")

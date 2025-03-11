@@ -11,16 +11,23 @@ Node_state :: enum {
 }
 
 Node :: struct {
-	screen_pos: rl.Vector2,
-	map_pos:    [2]int,
-	links:      [3]^Node,
-	state:      Node_state,
+	screen_pos:       rl.Vector2,
+	map_pos:          [2]int,
+	links:            [3]^Node,
+	state:            Node_state,
+
+	// game state stuff
+	enemy_count:      int,
+	enemy_spawn_time: f32,
 }
 
 node_init :: proc(s_pos: rl.Vector2, m_pos: [2]int) -> (n: Node) {
 	n.screen_pos = s_pos
 	n.map_pos = m_pos
 	n.state = .None
+
+	n.enemy_spawn_time = 2
+	n.enemy_count = 5
 
 	return n
 }
