@@ -25,7 +25,6 @@ map_init :: proc() -> (m: Map) {
 	m.height = 3
 
 	m.nodes = make([dynamic]Node, m.width * m.height)
-	fmt.printfln("nodes: %v", len(m.nodes))
 
 	off_set: f32 = 50 + 64
 	spacing_y: f32 = 128 + 3 * 16
@@ -110,7 +109,6 @@ map_update :: proc(m: ^Map, dt: f32) -> ^Node {
 			case Node_state.Selected:
 				if m.playre_pos.y == -1 && node.map_pos.y == 0 {
 					m.selected_node = &node
-					m.playre_pos = node.map_pos
 				}
 				break
 			case Node_state.Active_link:
@@ -136,7 +134,7 @@ map_update :: proc(m: ^Map, dt: f32) -> ^Node {
 		rl.Rectangle{f32(rl.GetMouseX()), f32(rl.GetMouseY()), 10, 10},
 	) {
 		if rl.IsMouseButtonPressed(rl.MouseButton.LEFT) {
-			fmt.printfln("start game: %v", m.selected_node)
+			m.playre_pos = m.selected_node.map_pos
 			return m.selected_node
 		}
 	}

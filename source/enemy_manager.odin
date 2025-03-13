@@ -29,6 +29,7 @@ enemy_manager_update :: proc(player: ^Player, dt: f32) -> bool {
 		enemy_update(&e, player^, dt)
 	}
 
+	// Bullet collision
 	for &b in player.bullets {
 		for &e in enemy_manager.enemys {
 			if e.dead || !b.active {
@@ -38,6 +39,11 @@ enemy_manager_update :: proc(player: ^Player, dt: f32) -> bool {
 			if rl.CheckCollisionCircles(b.pos, b.size / 2, e.pos, e.size / 2) {
 				e.dead = true
 				b.active = false
+
+				enemy_manager.spawn_count -= 1
+				if enemy_manager.spawn_count <= 0 {
+					return true
+				}
 			}
 		}
 	}
@@ -46,10 +52,6 @@ enemy_manager_update :: proc(player: ^Player, dt: f32) -> bool {
 	if enemy_manager.spawn_timer.state == .DONE {
 		spawn()
 		timer_reset(&enemy_manager.spawn_timer)
-		enemy_manager.spawn_count -= 1
-		if enemy_manager.spawn_count < 0 {
-			return true
-		}
 	}
 
 	return false

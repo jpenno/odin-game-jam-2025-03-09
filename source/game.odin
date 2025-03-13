@@ -24,7 +24,9 @@ init :: proc() {
 
 	game = Game {
 		run    = true,
-		player = player_init(rl.Vector2{100, 100}),
+		player = player_init(
+			rl.Vector2{f32(rl.GetScreenWidth() / 2), f32(rl.GetScreenHeight() / 2)},
+		),
 		state  = .Map,
 		mmap   = map_init(),
 	}
